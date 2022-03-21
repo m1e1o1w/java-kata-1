@@ -2,12 +2,12 @@ package org.echocat.kata.java.part1.model;
 
 import java.util.List;
 
-public class Publishable {
-   private final String title;
-  private final String isbn;
-  private final List<Author> authors;
+public class Publication {
+    private final String title;
+    private final String isbn;
+    private final List<String> authors;
 
-    public Publishable(String title, String isbn, List<Author> authors) {
+    public Publication(String title, String isbn, List<String> authors) {
         this.title = title;
         this.isbn = isbn;
         this.authors = authors;
@@ -21,7 +21,7 @@ public class Publishable {
         return isbn;
     }
 
-    public List<Author> getAuthors() {
+    public List<String> getAuthors() {
         return authors;
     }
 }

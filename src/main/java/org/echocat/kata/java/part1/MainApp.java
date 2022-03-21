@@ -4,57 +4,69 @@ import org.echocat.kata.java.part1.model.*;
 import org.echocat.kata.java.part1.parcer.Parcer;
 import org.echocat.kata.java.part1.reader.Reader;
 
-import javax.sound.midi.Soundbank;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MainApp {
     private static final String filePath = "C:\\Users\\Barba\\java-kata-1\\src\\main\\resources\\org\\echocat\\kata\\java\\part1\\data\\";
 
+    private final Database database = new Database();
+
+    public MainApp() {
+        database.setAuthorList(readAuthors());
+        database.setPublishableList(readPublications());
+    }
+
     public static void main(String[] args) {
+        MainApp mainApp = new MainApp();
+        Database database = mainApp.getDatabase();
+        List<Publication> publications = database.getPublishableList();
 
-        Stream<String> authorStream = Reader.readFile(filePath + "authors.csv");
-        Stream<String> bookStream = Reader.readFile(filePath + "books.csv");
-        Stream<String> magazineStream = Reader.readFile(filePath + "magazines.csv");
-
-        List<Author> authors = authorStream
-                .map(Parcer::parseLine)
-                .map(stringStream -> new AuthorConstructor().apply(stringStream))
-                .collect(Collectors.toList());
-        System.out.println(authors);
-
-        List<Publishable> books = bookStream
-                .map(Parcer::parseLine)
-                .map(line -> new BookConstructor().apply(line, authors))
-                .collect(Collectors.toList());
-
-
-        List<Publishable> magazines = magazineStream
-                .map(Parcer::parseLine)
-                .map(line -> new MagazineConstructor().apply(line, authors))
-                .collect(Collectors.toList());
-
-        List<Publishable> publishables = new ArrayList<>();
-        publishables.addAll(books);
-        publishables.addAll(magazines);
-
-        System.out.println("All Books and magazines");
-        publishables.forEach(System.out::println);
-
-        System.out.println("By isbn: 4545-8558-3232");
-        FilerEntities.findPublishableBy("4545-8558-3232", publishables)
-                .forEach(System.out::println);
-
-        System.out.println("Sorted books and magazines");
-        // TODO: publishables.stream().sorted().forEach(System.out::println);
-
-        System.out.println("By author: null-lieblich@echocat.org");
-        FilerEntities.findPublishableByEmail("null-lieblich@echocat.org", publishables)
-               .forEach(System.out::println);
+        publications.forEach(System.out::println);
+        mainApp.findPublishableByIsbn("3214-5698-7412", publications).forEach(System.out::println);
+        mainApp.findPublishableByEmail("null-lieblich@echocat.org", publications).forEach(System.out::println);
 
     }
+
+    private List<Publication> findPublishableByIsbn(String isbn, List<Publication> publications) {
+        return FilerEntities.findPublishableBy(isbn, publications);
+    }
+
+    private List<Publication> findPublishableByEmail(String email, List<Publication> publications) {
+        return FilerEntities.findPublishableByEmail(email, publications);
+    }
+
+    private List<Author> readAuthors() {
+        return readEntities("authors.csv", new AuthorConstructor(), Collectors.toList());
+    }
+
+    private List<Publication> readPublications() {
+        return Stream.concat(streamBooks(), streamMagazines()).collect(Collectors.toList());
+    }
+
+    private Stream<Book> streamBooks() {
+        return streamEntity("books.csv", new BookConstructor());
+    }
+
+    private Stream<Magazine> streamMagazines() {
+        return streamEntity("magazines.csv", new MagazineConstructor());
+    }
+
+    public <E> List<E> readEntities(String fileName, EntityConstructor<E> constructor, Collector<E, ?, List<E>> collector) {
+        return streamEntity(fileName, constructor).collect(collector);
+    }
+
+    public <E> Stream<E> streamEntity(String fileName, EntityConstructor<E> constructor) {
+        return Reader.readFile(filePath + fileName)
+                .map(Parcer::parseLine)
+                .map(constructor);
+    }
+
+    public Database getDatabase() {
+        return database;
+    }
 }
+
 

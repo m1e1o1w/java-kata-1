@@ -2,11 +2,11 @@ package org.echocat.kata.java.part1.model;
 
 import java.util.List;
 
-public class Book extends Publishable implements Printable{
+public class Book extends Publication implements Printable {
 
-   private final String description;
+    private final String description;
 
-    public Book(String title, String isbn, List<Author> authors, String description) {
+    public Book(String title, String isbn, List<String> authors, String description) {
         super(title, isbn, authors);
         this.description = description;
     }
@@ -14,9 +14,9 @@ public class Book extends Publishable implements Printable{
     @Override
     public String toString() {
         return "Book{" +
-                "title=" + super.getTitle()+
-                ", isbn= "+ super.getIsbn()+
-                ", authors="+ super.getAuthors().toString()+
+                "title=" + super.getTitle() +
+                ", isbn= " + super.getIsbn() +
+                ", authors=" + super.getAuthors().toString() +
                 ", description='" + description + '\'' +
                 '}';
     }
