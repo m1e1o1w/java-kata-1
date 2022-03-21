@@ -54,7 +54,7 @@ public class MainApp {
         return streamEntity("magazines.csv", new MagazineConstructor());
     }
 
-    public <E> List<E> readEntities(String fileName, EntityConstructor<E> constructor, Collector<E, ?, List<E>> collector) {
+    public <E, C> C readEntities(String fileName, EntityConstructor<E> constructor, Collector<E, ?, C> collector) {
         return streamEntity(fileName, constructor).collect(collector);
     }
 
